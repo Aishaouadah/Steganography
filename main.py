@@ -45,7 +45,6 @@ def hideMsgInPic(message,originalImage):
 
     #join the string binary values of the message in one string to flip all of them next 
     string_bin_message = ''.join(string_bin_msgVals)
-    print(string_bin_message)
     #stringImg=''.join(str(int) for int in bin_flat_img)
     #charImg= list(stringImg)
 
