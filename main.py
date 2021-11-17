@@ -1,5 +1,6 @@
 import cv2 as cv
 import numpy as np
+import binascii
 #read image
 def ReadImage():
     path= input("Give the path to the image where you want to hide the message :) \n")
@@ -12,7 +13,9 @@ def ReadImage():
 
 #read message
 def ReadMessage():
-    message = input("Give the message that you want to hide in the image! \ni'll keep it safe ;) \n")
+    message = input("Give the message that you want to hide in the image! \ni'll keep it safe ;) \n keep in mind that fullstop means the end of the message to be hidden  ")
+    while(message[-1] != '.'): 
+        message = input("Give the message that you want to hide in the image! \ni'll keep it safe ;) \n keep in mind that fullstop means the end of the message to be hidden  ")
     return message
 
 #hide message in pic
@@ -42,8 +45,7 @@ def hideMsgInPic(message,originalImage):
 
     #join the string binary values of the message in one string to flip all of them next 
     string_bin_message = ''.join(string_bin_msgVals)
-
-
+    print(string_bin_message)
     #stringImg=''.join(str(int) for int in bin_flat_img)
     #charImg= list(stringImg)
 
@@ -65,7 +67,7 @@ def hideMsgInPic(message,originalImage):
     for i in string_bin_message:
         byte = bin_flat_img[j]    ## get the 8 bits
         list_bits = list(str(byte))
-        list_bits[7]=i          ## modify the last bit 
+        list_bits[-1]=i          ## modify the last bit 
             
         #reform byte
         bin_flat_img[j] = ''.join(list_bits) 
@@ -93,11 +95,42 @@ def toBinary(a):
         bnr = x[::-1]
         m.append(bnr)
     return m
+#transform from binary to ascii  representation 
+def toText(a): 
+    i=0
+    x=[]
+    m=""
+    while i<(len(a)):
+        x=a[i:i+8]
+        c=int(str(x),2)
+        m = m + chr(c)
+        i=i+8
+    return m 
 
 #extract message from pic
-def ExtractMessageFromPic(originalImage,newImage):
-    #process
-    return message
+def ExtractMessageFromPic(newImage):
+    #read image -> change it to binary then extract each pixel's last bit then binary results convert to ascii than to str 
+    img_np = np.array(newImage)
+    flat_img = img_np.flatten()
+    bin_flat_img=[]
+    for i in flat_img:
+        bin_flat_img.append(int(bin(i)[2:]))
+    # the image is in binary , next read it to get the message in binary :
+    #each element of the list get its last number -> save it in a str 
+    message = []   
+    fullstop = "00101110"
+    for i in range(len(bin_flat_img)):
+        last_bit = bin_flat_img[i]%2 
+        if last_bit == 0:
+            last_bit= '1'
+        if last_bit == 1:
+            last_bit= '0' 
+        message.append(str(last_bit))
+        string_bin_message = ''.join(message)
+        if(string_bin_message[-8:] == fullstop and i>8):
+            return (toText(string_bin_message))
+    return (toText(string_bin_message))
+    print("error no fullstop found")
 
 def main():
     message = ReadMessage()
@@ -107,12 +140,13 @@ def main():
     cv.waitKey(0)
     cv.destroyAllWindows()
     print("Original image shown")
-    newImage = hidemessageInPic(message,image)
+    newImage = hideMsgInPic(message,image)
     print(newImage)
     cv.imshow("The new image", newImage)
     cv.waitKey(0)
     cv.destroyAllWindows()
     print("New image shown")
-
+    message = ExtractMessageFromPic(newImage)
+    print("hidden message in the new image is",message)
 if __name__==  "__main__":
     main()
