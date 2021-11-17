@@ -145,7 +145,10 @@ def main():
     cv.imshow("The new image", newImage)
     cv.waitKey(0)
     cv.destroyAllWindows()
-    print("New image shown")
+    #we have choosen the png format to avoid all conflicts and random conversion !! 
+    cv.imwrite("newimage.png",newImage)
+    print("New image shown and saved")
+    newImage=cv.imread("newimage.png",1)
     message = ExtractMessageFromPic(newImage)
     print("hidden message in the new image is",message)
 if __name__==  "__main__":
